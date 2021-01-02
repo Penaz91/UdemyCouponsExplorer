@@ -16,6 +16,11 @@ Arguments
 
 `--useragent STRING` (short version `-u`) allows to replace the user-agent (default `UdemyCouponsExplorer 0.0.1`).
 
+Requirements
+------------
+
+This script requires the "requests" package for python, as well as "pygobject" for notifications
+
 Notes
 -----
 
