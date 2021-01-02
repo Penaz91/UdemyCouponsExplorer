@@ -12,12 +12,18 @@ Author: Penaz
 import datetime
 import argparse
 import requests
+import gi
+gi.require_version('Notify', '0.7')
+from gi.repository import Notify
+
+
 
 
 DAYS_DEFAULT = 1
+DEFAULT_UA = "UdemyCouponsExplorer 0.0.1"
 
 
-def scrape_results(params):
+def scrape_results(params, useragent):
     """
     Contacts the WP-JSON endpoint and returns the posts
     """
@@ -25,8 +31,7 @@ def scrape_results(params):
         "https://udemycoupons.me/wp-json/wp/v2/posts",
         params=params,
         headers={
-            "User-Agent": 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0)'
-                          ' Gecko/20100101 Firefox/15.0.1'
+            "User-Agent": useragent
         })
     return response.json()
 
@@ -43,16 +48,41 @@ def build_parameters(days):
     }
 
 
+def print_results(results):
+    """
+    Does a somewhat pretty-print of the results
+    """
+    for result in sorted(results, key=lambda x: x["date_gmt"], reverse=True):
+        print(result["title"]["rendered"])
+        print(len(result["title"]["rendered"]) * "-")
+        print(f"Date: {result['date_gmt']}")
+        print(f"Link: {result['link']}")
+        print(50 * "=")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--days",
+    parser.add_argument("-d", "--days", type=int,
                         help="Number of days to go back in the search")
-    parser.add_argument("--notify",
+    parser.add_argument("-n", "--notify", action="store_true",
                         help="Show a notification if posts are found")
+    parser.add_argument("-u", "--useragent", type=str,
+                        help="Set the user agent")
     args = parser.parse_args()
     days = DAYS_DEFAULT
+    useragent = DEFAULT_UA
     if args.days:
-        days = int(args.days)
+        days = args.days
+    if args.useragent:
+        useragent = args.useragent
     parameters = build_parameters(days)
-    result = scrape_results(parameters)
-    print(result)
+    results = scrape_results(parameters, useragent)
+    if args.notify:
+        # Send notification
+        Notify.init("Udemy Coupons Explorer")
+        Notify.Notification.new("Udemy Coupons Explorer",
+                                "New coupons available").show()
+        Notify.uninit()
+    else:
+        # Print results
+        print_results(results)
