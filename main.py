@@ -78,11 +78,12 @@ if __name__ == "__main__":
     parameters = build_parameters(days)
     results = scrape_results(parameters, useragent)
     if args.notify:
-        # Send notification
-        Notify.init("Udemy Coupons Explorer")
-        Notify.Notification.new("Udemy Coupons Explorer",
-                                "New coupons available").show()
-        Notify.uninit()
+        if results:
+            # Send notification
+            Notify.init("Udemy Coupons Explorer")
+            Notify.Notification.new("Udemy Coupons Explorer",
+                                    "New coupons available").show()
+            Notify.uninit()
     else:
         # Print results
         print_results(results)
