@@ -28,7 +28,7 @@ def scrape_results(params, useragent):
     Contacts the WP-JSON endpoint and returns the posts
     """
     response = requests.get(
-        "https://udemycoupons.me/wp-json/wp/v2/posts",
+        "https://udemy.coupons/wp-json/wp/v2/posts",
         params=params,
         headers={
             "User-Agent": useragent
